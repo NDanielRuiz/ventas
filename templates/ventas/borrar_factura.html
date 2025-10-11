@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %}Confirmar Borrado de Factura{% endblock %}
+
+{% block content %}
+  <h2 class="text-danger">¿Estás seguro?</h2>
+  <hr>
+  <p>Estás a punto de eliminar permanentemente la factura <strong>#{{ factura.id }}</strong> para el cliente <strong>{{ factura.cliente }}</strong>.</p>
+  <p>Esta acción no se puede deshacer.</p>
+  
+  <div class="alert alert-warning">
+    <h4>Factura #{{ factura.id }} - Total: ${{ factura.total|floatformat:2 }}</h4>
+  </div>
+
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Sí, eliminar factura</button>
+    <a href="{% url 'detalle_factura' factura.id %}" class="btn btn-secondary">No, cancelar</a>
+  </form>
+{% endblock %}

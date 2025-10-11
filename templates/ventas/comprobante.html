@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Comprobante Factura #{{ factura.id }}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    @media print {
+      .no-print { display: none; }
+    }
+  </style>
+</head>
+<body class="p-4">
+  <div class="container border p-4">
+    <div class="row mb-4">
+      <div class="col-8">
+        <h1>{{ factura.usuario.perfil.nombre_almacen }}</h1>
+        <h4>Comprobante de Cuenta</h4>
+      </div>
+      <div class="col-4 text-end">
+        <strong>Factura #{{ factura.id }}</strong><br>
+        Fecha: {{ factura.fecha_emision|date:"d M Y" }}
+      </div>
+    </div>
+
+    <hr>
+
+    <div class="row mb-4">
+      <div class="col">
+        <strong>Cliente:</strong> {{ factura.cliente }}<br>
+        <strong>Estado:</strong> {{ factura.get_estado_display }}
+      </div>
+    </div>
+
+    <h5>Historial de Abonos</h5>
+    <table class="table table-sm table-bordered mb-4">
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Monto Abonado</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for pago in factura.pagos.all %}
+        <tr>
+          <td>{{ pago.fecha_pago|date:"d M Y" }}</td>
+          <td>${{ pago.monto|floatformat:2 }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="2">No se han realizado abonos.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="row justify-content-end text-end">
+      <div class="col-md-5">
+        <p class="mb-1"><strong>Total Deuda Inicial:</strong> ${{ factura.total|floatformat:2 }}</p>
+        <hr class="my-1">
+        <h4 class="text-danger">Saldo Pendiente: ${{ factura.saldo_pendiente|floatformat:2 }}</h4>
+      </div>
+    </div>
+    
+    <hr>
+    <p class="text-muted small mt-4">Detalle de productos facturados:</p>
+    <ul>
+      {% for detalle in factura.detalles.all %}
+        <li>{{ detalle.cantidad }} x {{ detalle.producto.nombre }} (${{ detalle.precio_unitario|floatformat:2 }} c/u)</li>
+      {% endfor %}
+    </ul>
+
+    <div class="text-center mt-5 no-print">
+        <button onclick="window.print()" class="btn btn-primary">Imprimir Comprobante</button>
+    </div>
+  </div>
+</body>
+</html>

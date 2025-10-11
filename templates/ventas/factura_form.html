@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Crear Nueva Factura{% endblock %}
+
+{% block content %}
+  <h2>Crear Nueva Factura</h2>
+  <hr>
+  <form method="post">
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    <hr>
+    
+    <h4>Detalles de la Factura</h4>
+    
+    {{ formset.management_form }}
+    
+    <div id="detalle-forms-container">
+      {% for item_form in formset %}
+        <div class="row detalle-form mb-2 align-items-center">
+          <div class="col-md-6">{{ item_form.producto }}</div>
+          <div class="col-md-4">{{ item_form.cantidad }}</div>
+          <div class="col-md-2">
+            {% if item_form.instance.pk %}
+              {{ item_form.DELETE }}
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <h2>{% if factura %}Editar Factura #{{ factura.id }}{% else %}Crear Nueva Factura{% endif %}</h2>
+
+    <button type="submit" class="btn btn-primary mt-3">
+        {% if factura %}Guardar Cambios{% else %}Guardar Factura{% endif %}
+    </button>
+  </form>
+{% endblock %}

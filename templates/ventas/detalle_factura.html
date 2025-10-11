@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalle de Factura #{{ factura.id }}{% endblock %}
+
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="mb-0">Factura #{{ factura.id }}</h1>
+    <div>
+        <a href="{% url 'añadir_pago' factura.id %}" class="btn btn-info me-2">Añadir Pago</a>
+        <a href="{% url 'vista_comprobante' factura.id %}" class="btn btn-secondary me-2" target="_blank">Imprimir Comprobante</a>
+        <a href="{% url 'editar_factura' factura.id %}" class="btn btn-warning me-2">Editar</a>
+        <a href="{% url 'borrar_factura' factura.id %}" class="btn btn-danger me-2">Borrar</a> <a href="{% url 'lista_facturas' %}" class="btn btn-secondary">Volver a la Lista</a>
+    </div>
+  </div>
+
+  <div class="card mb-4">
+    <div class="card-header">Resumen</div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6">
+          <p><strong>Cliente:</strong> {{ factura.cliente }}</p>
+          <p><strong>Fecha de Emisión:</strong> {{ factura.fecha_emision|date:"d M Y" }}</p>
+          <p><strong>Estado:</strong> 
+            <span class="badge {% if factura.estado == 'PAGADA' %}bg-success{% elif factura.estado == 'PENDIENTE' %}bg-warning text-dark{% else %}bg-danger{% endif %}">
+              {{ factura.get_estado_display }}
+            </span>
+          </p>
+        </div>
+        <div class="col-md-6 text-md-end">
+          <h3>Total: ${{ factura.total|floatformat:2 }}</h3>
+          <h4 class="text-danger">Saldo Pendiente: ${{ factura.saldo_pendiente|floatformat:2 }}</h4>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mb-4">
+    <div class="card-header">Productos</div>
+    <div class="card-body">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Cantidad</th>
+            <th>Precio Unitario</th>
+            <th>Subtotal</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for detalle in factura.detalles.all %}
+            <tr>
+              <td>{{ detalle.producto.nombre }}</td>
+              <td>{{ detalle.cantidad }}</td>
+              <td>${{ detalle.precio_unitario|floatformat:2 }}</td>
+              {% widthratio detalle.cantidad 1 detalle.precio_unitario as subtotal %}
+              <td>${{ subtotal|floatformat:2 }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">Historial de Pagos</div>
+    <div class="card-body">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Fecha del Pago</th>
+            <th>Monto</th>
+            <th>Método</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for pago in factura.pagos.all %}
+            <tr>
+              <td>{{ pago.fecha_pago|date:"d M Y, h:i A" }}</td>
+              <td>${{ pago.monto|floatformat:2 }}</td>
+              <td>{{ pago.get_metodo_pago_display }}</td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="3" class="text-center">No se han registrado pagos para esta factura.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+{% endblock %}

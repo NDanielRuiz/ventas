@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}Añadir Nuevo Cliente{% endblock %}
+
+{% block content %}
+  <h2>Añadir Nuevo Cliente</h2>
+  <hr>
+  <form method="post">
+    {% csrf_token %}
+
+    {% for field in form %}
+      <div class="row mb-3">
+        <label for="{{ field.id_for_label }}" class="col-md-4 col-form-label text-md-end">
+          {{ field.label }}
+        </label>
+        <div class="col-md-8">
+          {{ field }} {# Aquí se dibuja el <input>, <select>, etc. #}
+
+          {% if field.errors %}
+            <div class="invalid-feedback d-block">
+              {{ field.errors }}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+
+    <div class="row">
+        <div class="col-md-8 offset-md-4">
+            <button type="submit" class="btn btn-primary">Guardar Cliente</button>
+            <a href="{% url 'lista_clientes' %}" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </div>
+  </form>
+{% endblock %}

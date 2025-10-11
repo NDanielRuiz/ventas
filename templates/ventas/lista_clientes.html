@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}Lista de Clientes{% endblock %}
+
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="mb-0">Nuestros Clientes</h1>
+    <a href="{% url 'crear_cliente' %}" class="btn btn-primary">Añadir Cliente</a>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Nombre Completo</th>
+            <th>Email</th>
+            <th>Teléfono</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for cliente in clientes %}
+          <tr>
+            <td>{{ cliente.id }}</td>
+            <td>
+                <a href="{% url 'detalle_cliente' cliente.id %}">{{ cliente.nombre }} {{ cliente.apellido }}</a>
+            </td>
+            <td>{{ cliente.email }}</td>
+            <td>{{ cliente.telefono }}</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="4" class="text-center">No hay clientes registrados todavía.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}

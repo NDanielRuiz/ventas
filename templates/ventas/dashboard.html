@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+  <h1 class="mb-4">Panel de Control</h1>
+
+  <div class="row">
+    <div class="col-md-4 mb-4">
+      <div class="card text-center">
+        <div class="card-body">
+          <h5 class="card-title">Clientes Totales</h5>
+          <p class="card-text fs-1 fw-bold">{{ total_clientes }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 mb-4">
+      <div class="card text-center">
+        <div class="card-body">
+          <h5 class="card-title">Facturas Pendientes</h5>
+          <p class="card-text fs-1 fw-bold">{{ facturas_pendientes }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 mb-4">
+      <div class="card text-white bg-danger text-center">
+        <div class="card-body">
+          <h5 class="card-title">Total por Cobrar</h5>
+          <p class="card-text fs-1 fw-bold">${{ total_por_cobrar|floatformat:2 }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      Últimas Facturas
+    </div>
+    <div class="card-body">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th># Factura</th>
+            <th>Cliente</th>
+            <th>Fecha</th>
+            <th>Total</th>
+            <th>Saldo Pendiente</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for factura in ultimas_facturas %}
+          <tr>
+            <td><a href="{% url 'detalle_factura' factura.id %}">Factura #{{ factura.id }}</a></td>
+            <td>{{ factura.cliente }}</td>
+            <td>{{ factura.fecha_emision|date:"d M Y" }}</td>
+            <td>${{ factura.total|floatformat:2 }}</td>
+            <td>${{ factura.saldo_pendiente|floatformat:2 }}</td>
+            <td>
+              <span class="badge {% if factura.estado == 'PAGADA' %}bg-success{% elif factura.estado == 'PENDIENTE' %}bg-warning text-dark{% else %}bg-danger{% endif %}">
+                {{ factura.get_estado_display }}
+              </span>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6" class="text-center">Aún no has creado ninguna factura.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}

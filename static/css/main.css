@@ -1,0 +1,6 @@
+/* static/css/main.css */
+.producto-detalle-img {
+  max-height: 140px; /* Limita el alto máximo de la imagen */
+  width: auto;      /* Mantiene la proporción */
+  object-fit: contain; /* Asegura que la imagen se vea completa dentro de su contenedor */
+}

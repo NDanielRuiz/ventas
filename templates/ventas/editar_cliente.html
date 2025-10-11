@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar a {{ cliente.nombre }}{% endblock %}
+
+{% block content %}
+  <h2>Editar Cliente: {{ cliente.nombre }} {{ cliente.apellido }}</h2>
+  <hr>
+  <form method="post">
+    {% csrf_token %}
+
+    {% for field in form %}
+      <div class="row mb-3">
+        <label for="{{ field.id_for_label }}" class="col-md-4 col-form-label text-md-end">
+          {{ field.label }}
+        </label>
+        <div class="col-md-8">
+          {{ field }}
+          {% if field.errors %}
+            <div class="invalid-feedback d-block">
+              {{ field.errors }}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+
+    <div class="row">
+      <div class="col-md-8 offset-md-4">
+        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+        <a href="{% url 'detalle_cliente' cliente.id %}" class="btn btn-secondary">Cancelar</a>
+      </div>
+    </div>
+  </form>
+{% endblock %}
