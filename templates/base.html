@@ -10,53 +10,49 @@
   <link href="{% static 'css/main.css' %}" rel="stylesheet">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container">
-        <a class="navbar-brand" href="{% url 'dashboard' %}">Gestor Fiado</a>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid"> <a class="navbar-brand" href="{% url 'dashboard' %}">Gestor Fiado</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        {% if user.is_authenticated %}
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'lista_clientes' %}">Clientes</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'lista_productos' %}">Productos</a> 
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'lista_facturas' %}">Facturas</a>
+          </li>
+        {% endif %}
+      </ul>
+      <ul class="navbar-nav ms-auto">
           {% if user.is_authenticated %}
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'lista_clientes' %}">Clientes</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'lista_productos' %}">Productos</a> 
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'lista_facturas' %}">Facturas</a>
-                </li>
-                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'crear_factura' %}">Nueva Factura</a> 
-                </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                ¡Hola, {{ user.username }}!
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                 <li>
-                    
+                  <form action="{% url 'logout' %}" method="post" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="dropdown-item">Cerrar Sesión</button>
+                  </form>
                 </li>
-            </ul>
-            {% endif %}
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto">
-            {% if user.is_authenticated %}
-            <li class="nav-item">
-                <a class="nav-link" href="#">¡Hola, {{ user.username }}!</a>
+              </ul>
             </li>
-            
+          {% else %}
             <li class="nav-item">
-            <form action="{% url 'logout' %}" method="post">
-                {% csrf_token %}
-                <button type="submit" class="nav-link btn btn-link">Cerrar Sesión</button>
-            </form>
+              <a class="nav-link" href="{% url 'login' %}">Iniciar Sesión</a>
             </li>
-            {% else %}
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'login' %}">Iniciar Sesión</a>
-            </li>
-            {% endif %}
-        </ul>
-        </div>
+          {% endif %}
+      </ul>
     </div>
-    </nav>
+  </div>
+</nav>
 
   <main class="container mt-4">
     {% if messages %}

@@ -7,28 +7,30 @@
   </div>
   <div class="card">
     <div class="card-body">
-      <table class="table table-hover">
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Precio</th>
-            <th>Stock</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for producto in productos %}
-          <tr>
-            <td><a href="{% url 'detalle_producto' producto.id %}">{{ producto.nombre }}</a></td>
-            <td>${{ producto.precio|floatformat:2 }}</td>
-            <td>{{ producto.stock }}</td>
-          </tr>
-          {% empty %}
-          <tr>
-            <td colspan="3" class="text-center">No hay productos en tu inventario.</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+      <div class="table-responsive"> 
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Precio</th>
+              <th>Stock</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for producto in productos %}
+            <tr>
+              <td><a href="{% url 'detalle_producto' producto.id %}">{{ producto.nombre }}</a></td>
+              <td>${{ producto.precio|floatformat:2 }}</td>
+              <td>{{ producto.stock }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="3" class="text-center">No hay productos en tu inventario.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 {% endblock %}
