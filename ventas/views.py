@@ -5,6 +5,8 @@ from .models import Cliente, Producto, Factura, Pago # Importar Pago
 from .forms import ClienteForm, ProductoForm, FacturaForm, DetalleFacturaFormSet, PagoForm # Importar PagoForm
 from django.contrib import messages # <-- 1. IMPORTAMOS LOS MENSAJES
 from django.db.models import Sum, Count # Importamos herramientas de agregación
+from django.http import HttpResponse
+from django.contrib.auth.models import User
 
 
 # --- Vistas de Clientes (sin cambios) ---
@@ -266,3 +268,17 @@ def dashboard(request):
         'ultimas_facturas': ultimas_facturas,
     }
     return render(request, 'ventas/dashboard.html', contexto)
+
+# --- AÑADE ESTA FUNCIÓN TEMPORAL ---
+def crear_superusuario_temporal(request):
+    # Reemplaza con tus datos deseados
+    username = 'Daniel'
+    email = 'ndanielruiz@gmail.com'
+    password = 'Admin.2025@*' # Elige una contraseña fuerte
+
+    # Revisa si el usuario ya existe para no crearlo dos veces
+    if not User.objects.filter(username=username).exists():
+        User.objects.create_superuser(username, email, password)
+        return HttpResponse("<h1>Superusuario creado exitosamente.</h1><p>Ahora, por favor, elimina este código de tus archivos views.py y urls.py por seguridad.</p>")
+    else:
+        return HttpResponse("<h1>El superusuario ya existe.</h1><p>Por favor, elimina este código de tus archivos views.py y urls.py por seguridad.</p>")
