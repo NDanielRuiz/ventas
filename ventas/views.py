@@ -270,6 +270,7 @@ def dashboard(request):
     return render(request, 'ventas/dashboard.html', contexto)
 
 # --- AÑADE ESTA FUNCIÓN TEMPORAL ---
+"""
 def crear_superusuario_temporal(request):
     # Reemplaza con tus datos deseados
     username = 'Daniel'
@@ -282,3 +283,4 @@ def crear_superusuario_temporal(request):
         return HttpResponse("<h1>Superusuario creado exitosamente.</h1><p>Ahora, por favor, elimina este código de tus archivos views.py y urls.py por seguridad.</p>")
     else:
         return HttpResponse("<h1>El superusuario ya existe.</h1><p>Por favor, elimina este código de tus archivos views.py y urls.py por seguridad.</p>")
+"""
