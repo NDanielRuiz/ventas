@@ -145,6 +145,10 @@ LOGIN_REDIRECT_URL = 'dashboard'
 # CONFIGURACIÓN DE ALMACENAMIENTO EN AWS S3 (SOLO PARA PRODUCCIÓN)
 # ==============================================================================
 
+# Cerca del principio del archivo
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+
+
 if not DEBUG:
     # Credenciales
     AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
