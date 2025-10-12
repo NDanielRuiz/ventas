@@ -31,9 +31,21 @@ class Producto(models.Model):
     imagen = models.ImageField(upload_to='productos/', null=True, blank=True)
 
     def save(self, *args, **kwargs):
-        # Todo el código dentro de la función 'save' debe estar indentado
-        if self.imagen:
-            img = Image.open(self.imagen)
+        # Guardamos la imagen en una variable temporal si existe
+        imagen_a_procesar = self.imagen
+
+        # Llamamos al guardado original primero, pero sin el campo de la imagen
+        # para asegurarnos de tener un ID de producto.
+        if self.pk:
+            super().save(*args, **kwargs)
+        else:
+            self.imagen = None # Temporalmente quitamos la imagen para el primer guardado
+            super().save(*args, **kwargs)
+            self.imagen = imagen_a_procesar # La restauramos
+
+        # Ahora, procesamos y guardamos la imagen por separado
+        if imagen_a_procesar:
+            img = Image.open(imagen_a_procesar)
             max_width = 640
             if img.width > max_width:
                 ratio = max_width / img.width
@@ -46,14 +58,12 @@ class Producto(models.Model):
             buffer.seek(0)
             slug_nombre = slugify(self.nombre)
             unique_id = uuid.uuid4()
-            nuevo_nombre = f"{slug_nombre}-{unique_id}.jpg"
-            
-            self.imagen.save(nuevo_nombre, ContentFile(buffer.read()), save=False)
+            nuevo_nombre = f"{slug_nombre}-{self.id}-{unique_id}.jpg" # Usamos el ID del producto
 
-        # La llamada a super().save() también es parte de la función 'save'
-        super().save(*args, **kwargs)
+            # Actualizamos solo el campo de la imagen
+            Producto.objects.filter(pk=self.pk).update(imagen=ContentFile(buffer.read(), name=nuevo_nombre))
 
-    # La función '__str__' debe estar al mismo nivel de indentación que 'save'
+
     def __str__(self):
         return self.nombre
 
