@@ -3,18 +3,16 @@
 {% block title %}Detalle de {{ cliente.nombre }} {{ cliente.apellido }}{% endblock %}
 
 {% block content %}
-<div> <a href="{% url 'lista_clientes' %}" class="btn btn-secondary me-2">Volver a la Lista</a>
-
-  <div class="btn-group d-inline-block">
-    <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-      Acciones
-    </button>
-    <ul class="dropdown-menu dropdown-menu-end">
-      <li><a class="dropdown-item" href="{% url 'editar_cliente' cliente.id %}">Editar Cliente</a></li>
-      <li><hr class="dropdown-divider"></li>
-      <li><a class="dropdown-item text-danger" href="{% url 'borrar_cliente' cliente.id %}">Borrar Cliente</a></li>
-    </ul>
-  </div>
+<div class="btn-group">
+  <a href="{% url 'editar_cliente' cliente.id %}" class="btn btn-primary">Editar</a>
+  <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+    <span class="visually-hidden">Toggle Dropdown</span>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><a class="dropdown-item" href="{% url 'lista_clientes' %}">Volver a la Lista</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item text-danger" href="{% url 'borrar_cliente' cliente.id %}">Borrar Cliente</a></li>
+  </ul>
 </div>
 
   <div class="card">
