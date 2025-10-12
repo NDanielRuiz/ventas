@@ -23,7 +23,6 @@ class Cliente(models.Model):
     def __str__(self): return f"{self.nombre} {self.apellido}"
 
 class Producto(models.Model):
-    # ... (los campos del modelo no cambian)
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
     nombre = models.CharField(max_length=200)
     descripcion = models.TextField(blank=True)
@@ -31,43 +30,30 @@ class Producto(models.Model):
     stock = models.PositiveIntegerField(default=0)
     imagen = models.ImageField(upload_to='productos/', null=True, blank=True)
 
-    # --- REEMPLAZA ESTE MÉTODO ---
     def save(self, *args, **kwargs):
-        # Primero, llama al método original para guardar los datos de texto (nombre, precio, etc.)
-        # pero mantenemos la imagen en memoria por ahora.
+        # Todo el código dentro de la función 'save' debe estar indentado
+        if self.imagen:
+            img = Image.open(self.imagen)
+            max_width = 640
+            if img.width > max_width:
+                ratio = max_width / img.width
+                new_height = int(img.height * ratio)
+                img = img.resize((max_width, new_height), Image.Resampling.LANCZOS)
+            if img.mode != 'RGB':
+                img = img.convert('RGB')
+            buffer = BytesIO()
+            img.save(buffer, format='JPEG', quality=85)
+            buffer.seek(0)
+            slug_nombre = slugify(self.nombre)
+            unique_id = uuid.uuid4()
+            nuevo_nombre = f"{slug_nombre}-{unique_id}.jpg"
+            
+            self.imagen.save(nuevo_nombre, ContentFile(buffer.read()), save=False)
+
+        # La llamada a super().save() también es parte de la función 'save'
         super().save(*args, **kwargs)
 
-        # Si hay una imagen para procesar
-        if 'imagen' in kwargs.get('update_fields', []) or self.imagen:
-            if self.imagen:
-                try:
-                    # PROCESAMIENTO DE IMAGEN (sin cambios)
-                    img = Image.open(self.imagen)
-                    max_width = 640
-                    if img.width > max_width:
-                        ratio = max_width / img.width
-                        new_height = int(img.height * ratio)
-                        img = img.resize((max_width, new_height), Image.Resampling.LANCZOS)
-                    if img.mode != 'RGB':
-                        img = img.convert('RGB')
-                    buffer = BytesIO()
-                    img.save(buffer, format='JPEG', quality=85)
-                    buffer.seek(0)
-                    slug_nombre = slugify(self.nombre)
-                    unique_id = uuid.uuid4()
-                    nuevo_nombre = f"{slug_nombre}-{unique_id}.jpg"
-
-                    # Volvemos a guardar el campo de la imagen, esta vez con el archivo procesado.
-                    # Este es el momento en que Django habla con S3.
-                    self.imagen.save(nuevo_nombre, ContentFile(buffer.read()), save=True)
-
-                except Exception as e:
-                    # Si algo falla AL HABLAR CON S3, imprimimos el error.
-                    print("!!!!!!!!!! ERROR AL INTENTAR GUARDAR IMAGEN EN S3 !!!!!!!!!!")
-                    print(e)
-                    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-
-
+    # La función '__str__' debe estar al mismo nivel de indentación que 'save'
     def __str__(self):
         return self.nombre
 
