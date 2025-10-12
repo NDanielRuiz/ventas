@@ -23,6 +23,7 @@ class Cliente(models.Model):
     def __str__(self): return f"{self.nombre} {self.apellido}"
 
 class Producto(models.Model):
+    # ... (los campos del modelo no cambian)
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
     nombre = models.CharField(max_length=200)
     descripcion = models.TextField(blank=True)
@@ -31,31 +32,36 @@ class Producto(models.Model):
     imagen = models.ImageField(upload_to='productos/', null=True, blank=True)
 
     def save(self, *args, **kwargs):
-        if self.imagen:
-            img = Image.open(self.imagen)
-            max_width = 640
-            if img.width > max_width:
-                ratio = max_width / img.width
-                new_height = int(img.height * ratio)
-                img = img.resize((max_width, new_height), Image.Resampling.LANCZOS)
-            if img.mode != 'RGB':
-                img = img.convert('RGB')
-            buffer = BytesIO()
-            img.save(buffer, format='JPEG', quality=85)
-            buffer.seek(0)
-            
-            # --- LÓGICA PARA RENOMBRAR EL ARCHIVO ---
-            # 1. Simplificar el nombre del producto para usarlo en el nombre del archivo
-            slug_nombre = slugify(self.nombre)
-            # 2. Generar un identificador único
-            unique_id = uuid.uuid4()
-            # 3. Crear el nuevo nombre del archivo (siempre .jpg porque lo convertimos)
-            nuevo_nombre = f"{slug_nombre}-{unique_id}.jpg"
+        try:
+            # El código que ya teníamos para procesar y renombrar la imagen
+            if self.imagen:
+                img = Image.open(self.imagen)
+                max_width = 640
+                if img.width > max_width:
+                    ratio = max_width / img.width
+                    new_height = int(img.height * ratio)
+                    img = img.resize((max_width, new_height), Image.Resampling.LANCZOS)
+                if img.mode != 'RGB':
+                    img = img.convert('RGB')
+                buffer = BytesIO()
+                img.save(buffer, format='JPEG', quality=85)
+                buffer.seek(0)
+                slug_nombre = slugify(self.nombre)
+                unique_id = uuid.uuid4()
+                nuevo_nombre = f"{slug_nombre}-{unique_id}.jpg"
+                self.imagen.save(nuevo_nombre, ContentFile(buffer.read()), save=False)
 
-            # Reemplazar la imagen original con la procesada y con el nuevo nombre
-            self.imagen.save(nuevo_nombre, ContentFile(buffer.read()), save=False)
+            # El guardado final en la base de datos (y en S3 si hay imagen)
+            super().save(*args, **kwargs)
 
-        super().save(*args, **kwargs)
+        except Exception as e:
+            # ¡¡¡ESTA ES LA CLAVE!!!
+            # Si CUALQUIER COSA falla durante el proceso, especialmente la comunicación con S3,
+            # lo imprimiremos en los logs de Render.
+            print("!!!!!!!!!! OCURRIÓ UN ERROR DURANTE EL GUARDADO !!!!!!!!!!")
+            print(f"Tipo de error: {type(e)}")
+            print(f"Error: {e}")
+            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
     def __str__(self):
         return self.nombre

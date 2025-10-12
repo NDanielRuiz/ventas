@@ -7,6 +7,7 @@ from django.contrib import messages # <-- 1. IMPORTAMOS LOS MENSAJES
 from django.db.models import Sum, Count # Importamos herramientas de agregación
 from django.http import HttpResponse
 from django.contrib.auth.models import User
+from django.db.models import ProtectedError
 
 
 # --- Vistas de Clientes (sin cambios) ---
@@ -270,6 +271,28 @@ def dashboard(request):
     return render(request, 'ventas/dashboard.html', contexto)
 
 # --- AÑADE ESTA FUNCIÓN TEMPORAL ---
+
+
+# --- REEMPLAZA ESTA VISTA ---
+@login_required
+def borrar_producto(request, producto_id):
+    producto = get_object_or_404(Producto, id=producto_id, usuario=request.user)
+
+    if request.method == 'POST':
+        try:
+            # 2. Intentamos borrar el producto
+            producto.delete()
+            messages.success(request, f'El producto "{producto.nombre}" ha sido eliminado con éxito.')
+            return redirect('lista_productos')
+        except ProtectedError:
+            # 3. Si la base de datos lo impide, atrapamos el error
+            messages.error(request, f'Error: No se puede eliminar "{producto.nombre}" porque ya está siendo usado en una o más facturas.')
+            return redirect('detalle_producto', producto_id=producto.id)
+
+    return render(request, 'ventas/borrar_producto.html', {'producto': producto})
+
+
+
 """
 def crear_superusuario_temporal(request):
     # Reemplaza con tus datos deseados
