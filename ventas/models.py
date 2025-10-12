@@ -31,21 +31,9 @@ class Producto(models.Model):
     imagen = models.ImageField(upload_to='productos/', null=True, blank=True)
 
     def save(self, *args, **kwargs):
-        # Guardamos la imagen en una variable temporal si existe
-        imagen_a_procesar = self.imagen
-
-        # Llamamos al guardado original primero, pero sin el campo de la imagen
-        # para asegurarnos de tener un ID de producto.
-        if self.pk:
-            super().save(*args, **kwargs)
-        else:
-            self.imagen = None # Temporalmente quitamos la imagen para el primer guardado
-            super().save(*args, **kwargs)
-            self.imagen = imagen_a_procesar # La restauramos
-
-        # Ahora, procesamos y guardamos la imagen por separado
-        if imagen_a_procesar:
-            img = Image.open(imagen_a_procesar)
+        # 1. Si hay una imagen, la procesamos ANTES de guardar el modelo
+        if self.imagen:
+            img = Image.open(self.imagen)
             max_width = 640
             if img.width > max_width:
                 ratio = max_width / img.width
@@ -58,11 +46,14 @@ class Producto(models.Model):
             buffer.seek(0)
             slug_nombre = slugify(self.nombre)
             unique_id = uuid.uuid4()
-            nuevo_nombre = f"{slug_nombre}-{self.id}-{unique_id}.jpg" # Usamos el ID del producto
+            nuevo_nombre = f"{slug_nombre}-{unique_id}.jpg"
+            
+            # 2. Reemplazamos el archivo en memoria, sin guardar el modelo todavía (save=False)
+            self.imagen.save(nuevo_nombre, ContentFile(buffer.read()), save=False)
 
-            # Actualizamos solo el campo de la imagen
-            Producto.objects.filter(pk=self.pk).update(imagen=ContentFile(buffer.read(), name=nuevo_nombre))
-
+        # 3. Llamamos al método de guardado original UNA SOLA VEZ.
+        # En este momento, Django-storages ve que hay una nueva imagen y la sube a S3.
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.nombre
