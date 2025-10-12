@@ -1,40 +1,21 @@
-"""
-Django settings for core_config project.
-"""
-
 from pathlib import Path
 import os
-import dj_database_url # Necesitamos importar esta librería
+import dj_database_url
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# --- Configuración Base ---
 BASE_DIR = Path(__file__).resolve().parent.parent
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-clave-para-desarrollo-local')
+DEBUG = os.environ.get('RENDER') != 'true' # DEBUG es True localmente, y False en Render
 
-
-# ==============================================================================
-# CONFIGURACIÓN DE SEGURIDAD Y ENTORNO (PARA LOCAL Y PRODUCCIÓN)
-# ==============================================================================
-
-# La clave secreta se lee desde una variable de entorno en producción.
-# Para desarrollo local, usamos una clave por defecto (no segura).
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-tu-clave-local-debe-ser-diferente')
-
-# DEBUG se activa si la variable de entorno DEBUG es 'True'. Por defecto es False en producción.
-DEBUG = os.environ.get('DEBUG', 'True') == 'True'
-
-# Los hosts permitidos. Se añade el de Render automáticamente si existe.
 ALLOWED_HOSTS = []
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 else:
-    # Para desarrollo local
     ALLOWED_HOSTS.append('127.0.0.1')
 
 
-# ==============================================================================
-# APLICACIONES Y MIDDLEWARE
-# ==============================================================================
-
+# --- Aplicaciones Instaladas ---
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -42,17 +23,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
-    # Apps de Terceros
-    'storages',
-    
-    # Mis Aplicaciones
-    'ventas',
+    'storages', # App de terceros para S3
+    'ventas',   # Nuestra app
 ]
 
+# --- Middlewares ---
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware', # Para archivos estáticos en producción
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -62,7 +40,10 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'core_config.urls'
+WSGI_APPLICATION = 'core_config.wsgi.application'
 
+
+# --- Plantillas (Templates) ---
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -79,91 +60,50 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'core_config.wsgi.application'
-
-
-# ==============================================================================
-# BASE DE DATOS (PARA LOCAL Y PRODUCCIÓN)
-# ==============================================================================
-
+# --- Base de Datos ---
 DATABASES = {
-    # Render nos dará una variable de entorno 'DATABASE_URL' que dj_database_url leerá.
-    # Para desarrollo local, usará la URL que definimos aquí.
     'default': dj_database_url.config(
         default='postgresql://postgres:dbpass123@127.0.0.1:5432/gestordb',
         conn_max_age=600
     )
 }
 
-
-# ==============================================================================
-# VALIDACIÓN DE CONTRASEÑAS E INTERNACIONALIZACIÓN
-# ==============================================================================
-
-AUTH_PASSWORD_VALIDATORS = [
-    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',},
-    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',},
-    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',},
-    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',},
-]
-
+# --- Internacionalización ---
 LANGUAGE_CODE = 'es-co'
 TIME_ZONE = 'America/Bogota'
 USE_I18N = True
 USE_TZ = True
 
-
-# ==============================================================================
-# ARCHIVOS ESTÁTICOS Y MULTIMEDIA
-# ==============================================================================
-
+# --- Archivos Estáticos (CSS, JS) ---
 STATIC_URL = '/static/'
-# Directorio donde Django buscará tus archivos estáticos (CSS, JS) en desarrollo.
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-# Directorio donde `collectstatic` copiará todos los archivos estáticos para producción.
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+
+# --- Archivos Multimedia (Imágenes subidas por el usuario) ---
+# En desarrollo (DEBUG=True), se guardan en una carpeta local 'media'.
+# En producción (DEBUG=False), se guardan en AWS S3.
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-
-# ==============================================================================
-# CONFIGURACIONES ADICIONALES
-# ==============================================================================
-
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'dashboard'
-
-
-# core_config/settings.py
-# ... (al final del todo, después de LOGIN_REDIRECT_URL)
-
-# ==============================================================================
-# CONFIGURACIÓN DE ALMACENAMIENTO EN AWS S3 (SOLO PARA PRODUCCIÓN)
-# ==============================================================================
-
-# Cerca del principio del archivo
-DEBUG = os.environ.get('DEBUG', 'True') == 'True'
-
-
 if not DEBUG:
-    # Credenciales
     AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
     AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
     AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
     AWS_S3_REGION_NAME = os.environ.get('AWS_S3_REGION_NAME')
-
-    # Le decimos a Django que use S3 para los archivos multimedia
-    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-
-    # Configuración específica para S3
-    AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com'
+    
+    AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
     AWS_S3_FILE_OVERWRITE = False
-    AWS_DEFAULT_ACL = 'public-read' # Clave para hacer los archivos públicos
-    AWS_LOCATION = 'media' # Carpeta dentro del bucket
+    AWS_DEFAULT_ACL = 'public-read'
+    
+    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+    MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/media/"
+    AWS_LOCATION = 'media'
 
-    # La URL base para los archivos multimedia ahora apuntará a S3
-    MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_LOCATION}/"
+
+# --- Configuraciones Varias ---
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'dashboard'
