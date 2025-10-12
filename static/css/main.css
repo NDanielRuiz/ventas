@@ -1,4 +1,20 @@
 /* static/css/main.css */
+
+html {
+  height: 100%;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+main {
+  flex-grow: 1; /* Esta es la clave: hace que el contenido principal crezca */
+}
+
+/* static/css/main.css */
 .producto-detalle-img {
   max-height: 140px; /* Limita el alto máximo de la imagen */
   width: auto;      /* Mantiene la proporción */
