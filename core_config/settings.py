@@ -153,6 +153,8 @@ if not DEBUG: # Solo se ejecuta cuando estamos en el servidor de Render (DEBUG=F
     AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
     AWS_S3_FILE_OVERWRITE = False # No sobreescribir archivos con el mismo nombre
 
+    AWS_DEFAULT_ACL = 'public-read'
+
     # Le decimos a Django que use S3Boto3Storage para los archivos multimedia
     DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
     
