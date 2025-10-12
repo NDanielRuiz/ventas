@@ -23,7 +23,13 @@ class Cliente(models.Model):
     def __str__(self): return f"{self.nombre} {self.apellido}"
 
 class Producto(models.Model):
-    # ... (tus campos no cambian) ...
+    # ... (los campos del modelo no cambian)
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
+    nombre = models.CharField(max_length=200)
+    descripcion = models.TextField(blank=True)
+    precio = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    stock = models.PositiveIntegerField(default=0)
+    imagen = models.ImageField(upload_to='productos/', null=True, blank=True)
 
     # --- REEMPLAZA ESTE MÉTODO ---
     def save(self, *args, **kwargs):
