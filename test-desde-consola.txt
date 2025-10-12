@@ -1,0 +1,1 @@
+hola s3 desde la consola de django

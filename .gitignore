@@ -1,0 +1,21 @@
+# Archivos de entorno y secretos
+.env
+
+# Archivos compilados y caché de Python
+__pycache__/
+*.pyc
+
+# Base de datos local de SQLite (si la usaras)
+db.sqlite3
+
+# Carpetas de archivos estáticos y multimedia (no se deben versionar)
+/staticfiles/
+/media/
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Archivos del editor de código
+.vscode/
+.idea/

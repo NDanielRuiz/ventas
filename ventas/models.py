@@ -3,8 +3,6 @@ from django.core.validators import MinValueValidator
 from django.db.models import Sum, F
 from django.contrib.auth.models import User
 import decimal
-
-# --- NUEVAS IMPORTACIONES PARA MANEJAR IMÁGENES ---
 from io import BytesIO
 from PIL import Image
 from django.core.files.base import ContentFile
@@ -31,7 +29,6 @@ class Producto(models.Model):
     imagen = models.ImageField(upload_to='productos/', null=True, blank=True)
 
     def save(self, *args, **kwargs):
-        # 1. Si hay una imagen, la procesamos ANTES de guardar el modelo
         if self.imagen:
             img = Image.open(self.imagen)
             max_width = 640
@@ -47,12 +44,7 @@ class Producto(models.Model):
             slug_nombre = slugify(self.nombre)
             unique_id = uuid.uuid4()
             nuevo_nombre = f"{slug_nombre}-{unique_id}.jpg"
-            
-            # 2. Reemplazamos el archivo en memoria, sin guardar el modelo todavía (save=False)
             self.imagen.save(nuevo_nombre, ContentFile(buffer.read()), save=False)
-
-        # 3. Llamamos al método de guardado original UNA SOLA VEZ.
-        # En este momento, Django-storages ve que hay una nueva imagen y la sube a S3.
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -61,7 +53,7 @@ class Producto(models.Model):
 class Factura(models.Model):
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
     ESTADO_CHOICES = [('PENDIENTE', 'Pendiente de Pago'), ('PAGADA', 'Pagada'), ('ATRASADA', 'Atrasada'), ('CANCELADA', 'Cancelada')]
-    cliente = models.ForeignKey(Cliente, on_delete=models.PROTECT) 
+    cliente = models.ForeignKey(Cliente, on_delete=models.PROTECT)
     fecha_emision = models.DateField(auto_now_add=True)
     total = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, editable=False)
     saldo_pendiente = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, editable=False)
@@ -99,12 +91,8 @@ class Pago(models.Model):
         self.factura.actualizar_totales()
     def __str__(self): return f"Pago de ${self.monto} para Factura #{self.factura.id}"
 
-# ventas/models.py
-# ... (al final del archivo, después de la clase Pago) ...
-
 class Perfil(models.Model):
     usuario = models.OneToOneField(User, on_delete=models.CASCADE)
     nombre_almacen = models.CharField(max_length=100, blank=True)
-
     def __str__(self):
-        return f"Perfil de {self.usuario.username}"    
+        return f"Perfil de {self.usuario.username}"
