@@ -145,22 +145,30 @@ LOGIN_REDIRECT_URL = 'dashboard'
 # CONFIGURACIÓN DE ALMACENAMIENTO EN AWS S3 (SOLO PARA PRODUCCIÓN)
 # ==============================================================================
 
-if not DEBUG: # Solo se ejecuta cuando estamos en el servidor de Render (DEBUG=False)
-    # Credenciales de AWS (leídas desde las variables de entorno de Render)
+if not DEBUG:
+    # Credenciales
     AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
     AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
-    # Nombre del bucket de S3
     AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
-    # Región de AWS donde está tu bucket
     AWS_S3_REGION_NAME = os.environ.get('AWS_S3_REGION_NAME')
 
+    # URL del bucket
     AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
-    AWS_S3_FILE_OVERWRITE = False # No sobreescribir archivos con el mismo nombre
 
-    AWS_DEFAULT_ACL = 'public-read'
+    # Le decimos a Django que use S3 para los archivos multimedia
+    STORAGES = {
+        "default": {
+            "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+        },
+        # Whitenoise sigue manejando los archivos estáticos
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
 
-    # Le decimos a Django que use S3Boto3Storage para los archivos multimedia
-    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-    
-    # La URL base para los archivos multimedia ahora apuntará a S3
-    MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/"
+    # Configuración específica para S3Boto3Storage (media files)
+    AWS_S3_FILE_OVERWRITE = False
+    AWS_DEFAULT_ACL = 'public-read' # ¡Esto asegura que los archivos sean públicos!
+    AWS_LOCATION = 'media' # Crea una carpeta 'media' dentro de tu bucket
+
+    MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_LOCATION}/"
