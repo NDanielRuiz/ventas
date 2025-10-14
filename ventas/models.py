@@ -3,6 +3,8 @@ from django.core.validators import MinValueValidator
 from django.db.models import Sum, F
 from django.contrib.auth.models import User
 import decimal
+
+# Importaciones para el procesamiento de imágenes
 from io import BytesIO
 from PIL import Image
 from django.core.files.base import ContentFile
@@ -18,7 +20,9 @@ class Cliente(models.Model):
     telefono = models.CharField(max_length=20, blank=True)
     direccion = models.CharField(max_length=255, blank=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
-    def __str__(self): return f"{self.nombre} {self.apellido}"
+
+    def __str__(self):
+        return f"{self.nombre} {self.apellido}"
 
 class Producto(models.Model):
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -29,7 +33,8 @@ class Producto(models.Model):
     imagen = models.ImageField(upload_to='productos/', null=True, blank=True)
 
     def save(self, *args, **kwargs):
-        if self.imagen:
+        # Si hay una imagen nueva, la procesamos ANTES de llamar al guardado principal.
+        if self.imagen and hasattr(self.imagen.file, 'content_type'):
             img = Image.open(self.imagen)
             max_width = 640
             if img.width > max_width:
@@ -44,7 +49,11 @@ class Producto(models.Model):
             slug_nombre = slugify(self.nombre)
             unique_id = uuid.uuid4()
             nuevo_nombre = f"{slug_nombre}-{unique_id}.jpg"
+            
+            # Reemplazamos el archivo en memoria, sin guardar el modelo todavía (save=False).
             self.imagen.save(nuevo_nombre, ContentFile(buffer.read()), save=False)
+
+        # Llamamos al método de guardado original UNA SOLA VEZ.
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -59,26 +68,35 @@ class Factura(models.Model):
     saldo_pendiente = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, editable=False)
     numero_cuotas = models.PositiveIntegerField(default=1)
     estado = models.CharField(max_length=10, choices=ESTADO_CHOICES, default='PENDIENTE')
+    
     def actualizar_totales(self):
         total_detalles = self.detalles.aggregate(total=Sum(F('cantidad') * F('precio_unitario')))['total'] or decimal.Decimal('0.00')
         total_pagos = self.pagos.aggregate(total=Sum('monto'))['total'] or decimal.Decimal('0.00')
         self.total = total_detalles
         self.saldo_pendiente = self.total - total_pagos
-        if self.saldo_pendiente <= 0 and self.total > 0: self.estado = 'PAGADA'
-        else: self.estado = 'PENDIENTE'
+        if self.saldo_pendiente <= 0 and self.total > 0:
+            self.estado = 'PAGADA'
+        else:
+            self.estado = 'PENDIENTE'
         self.save()
-    def __str__(self): return f"Factura #{self.id} a {self.cliente} - Saldo: ${self.saldo_pendiente}"
+
+    def __str__(self):
+        return f"Factura #{self.id} a {self.cliente} - Saldo: ${self.saldo_pendiente}"
 
 class DetalleFactura(models.Model):
     factura = models.ForeignKey(Factura, related_name='detalles', on_delete=models.CASCADE)
     producto = models.ForeignKey(Producto, on_delete=models.PROTECT)
     cantidad = models.PositiveIntegerField(validators=[MinValueValidator(1)])
     precio_unitario = models.DecimalField(max_digits=10, decimal_places=2, blank=True)
+    
     def save(self, *args, **kwargs):
-        if self.precio_unitario is None: self.precio_unitario = self.producto.precio
+        if self.precio_unitario is None:
+            self.precio_unitario = self.producto.precio
         super().save(*args, **kwargs)
         self.factura.actualizar_totales()
-    def __str__(self): return f"{self.cantidad} x {self.producto.nombre}"
+
+    def __str__(self):
+        return f"{self.cantidad} x {self.producto.nombre}"
 
 class Pago(models.Model):
     METODO_CHOICES = [('EFECTIVO', 'Efectivo'), ('TRANSFERENCIA', 'Transferencia'), ('OTRO', 'Otro')]
@@ -86,13 +104,17 @@ class Pago(models.Model):
     fecha_pago = models.DateTimeField(auto_now_add=True)
     monto = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(decimal.Decimal('0.01'))])
     metodo_pago = models.CharField(max_length=15, choices=METODO_CHOICES, default='EFECTIVO')
+    
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         self.factura.actualizar_totales()
-    def __str__(self): return f"Pago de ${self.monto} para Factura #{self.factura.id}"
+
+    def __str__(self):
+        return f"Pago de ${self.monto} para Factura #{self.factura.id}"
 
 class Perfil(models.Model):
     usuario = models.OneToOneField(User, on_delete=models.CASCADE)
     nombre_almacen = models.CharField(max_length=100, blank=True)
+
     def __str__(self):
         return f"Perfil de {self.usuario.username}"

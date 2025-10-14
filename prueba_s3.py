@@ -1,59 +1,29 @@
-import boto3
-import os
-from dotenv import load_dotenv
-from botocore.exceptions import ClientError
-
-# Cargar las variables de entorno desde el archivo .env
-print(">>> Cargando variables desde el archivo .env...")
-load_dotenv()
-
-# Leer las credenciales y configuración
-aws_access_key_id = os.environ.get('AWS_ACCESS_KEY_ID')
-aws_secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
-aws_storage_bucket_name = os.environ.get('AWS_STORAGE_BUCKET_NAME')
-aws_s3_region_name = os.environ.get('AWS_S3_REGION_NAME')
-
-# --- VERIFICACIÓN INICIAL ---
-print("--- Verificando variables leídas ---")
-if aws_access_key_id:
-    print(f"Access Key ID: {aws_access_key_id[:4]}... (OK)")
-else:
-    print("Access Key ID: NO ENCONTRADO")
-
-print(f"Bucket Name: {aws_storage_bucket_name} (leído)")
-print(f"Region Name: {aws_s3_region_name} (leído)")
-print("------------------------------------\n")
-
-# Crear un cliente de S3
-s3_client = boto3.client(
-    's3',
-    aws_access_key_id=aws_access_key_id,
-    aws_secret_access_key=aws_secret_access_key,
-    region_name=aws_s3_region_name
-)
+from django.contrib.auth.models import User
+from ventas.models import Producto
+from django.core.files import File
+import traceback
 
 try:
-    file_content = b"Este es un archivo de prueba."
-    file_name = "test-directo-desde-terminal.txt"
+    print(">>> Obteniendo tu usuario...")
+    # Reemplaza 'ivonne' con tu nombre de usuario si es diferente
+    usuario = User.objects.get(username='ivonne') 
 
-    print(f"Intentando subir '{file_name}' al bucket '{aws_storage_bucket_name}'...")
-
-    # Subir el archivo
-    s3_client.put_object(
-        Bucket=aws_storage_bucket_name,
-        Key=f"media/{file_name}",
-        Body=file_content,
-        ACL='public-read'
+    print(">>> Creando un nuevo objeto Producto en memoria...")
+    nuevo_producto = Producto(
+        usuario=usuario,
+        nombre="Prueba Definitiva desde Shell",
+        precio=1.00
     )
 
-    print("\n¡¡¡ÉXITO!!! El archivo se subió correctamente a S3.")
-    print("Puedes verificarlo en tu bucket en la consola de AWS.")
+    print(">>> Abriendo el archivo de imagen local...")
+    with open('test-image.jpg', 'rb') as f:
+        # Adjuntamos el archivo al campo 'imagen'
+        nuevo_producto.imagen.save('test-image.jpg', File(f))
 
-except ClientError as e:
-    # Atrapamos específicamente los errores de AWS
-    print("\n!!!!!!!!!! ERROR DE AWS ATRAPADO !!!!!!!!!!")
-    print(f"Código de error: {e.response['Error']['Code']}")
-    print(f"Mensaje de error: {e.response['Error']['Message']}")
-    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print("\n¡¡¡ÉXITO!!! El archivo se ha subido a S3.")
+        print(f"URL generada: {nuevo_producto.imagen.url}")
+
 except Exception as e:
-    print(f"\nOcurrió un error inesperado: {e}")
+    print("\n!!!!!!!!!! ERROR FINAL ATRAPADO !!!!!!!!!!")
+    traceback.print_exc()
+    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
