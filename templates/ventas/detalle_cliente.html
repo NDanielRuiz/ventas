@@ -3,27 +3,60 @@
 {% block title %}Detalle de {{ cliente.nombre }} {{ cliente.apellido }}{% endblock %}
 
 {% block content %}
-<div class="btn-group">
-  <a href="{% url 'editar_cliente' cliente.id %}" class="btn btn-primary">Editar</a>
-  <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
-    <span class="visually-hidden">Toggle Dropdown</span>
-  </button>
-  <ul class="dropdown-menu dropdown-menu-end">
-    <li><a class="dropdown-item" href="{% url 'lista_clientes' %}">Volver a la Lista</a></li>
-    <li><hr class="dropdown-divider"></li>
-    <li><a class="dropdown-item text-danger" href="{% url 'borrar_cliente' cliente.id %}">Borrar Cliente</a></li>
-  </ul>
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1 class="mb-0">{{ cliente.nombre }} {{ cliente.apellido }}</h1>
+
+  <div class="btn-group">
+    <a href="{% url 'editar_cliente' cliente.id %}" class="btn btn-primary">Editar</a>
+    <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+      <span class="visually-hidden">Toggle Dropdown</span>
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end">
+      <li><a class="dropdown-item" href="{% url 'lista_clientes' %}">Volver a la Lista</a></li>
+      <li><hr class="dropdown-divider"></li>
+      <li><a class="dropdown-item text-danger" href="{% url 'borrar_cliente' cliente.id %}">Borrar Cliente</a></li>
+    </ul>
+  </div>
 </div>
 
-  <div class="card">
-    <div class="card-header">
-      Información de Contacto
-    </div>
-    <div class="card-body">
-      <p><strong>Email:</strong> {{ cliente.email }}</p>
-      <p><strong>Teléfono:</strong> {{ cliente.telefono }}</p>
-      <p><strong>Dirección:</strong> {{ cliente.direccion }}</p>
-      <p><strong>Cliente desde:</strong> {{ cliente.fecha_creacion|date:"d M Y" }}</p>
-    </div>
+<div class="card">
+  <div class="card-header">
+    Información de Contacto
   </div>
+  <div class="card-body">
+    <dl class="row">
+      <dt class="col-sm-3 d-flex align-items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-envelope-fill me-2" viewBox="0 0 16 16">
+          <path d="M.05 3.555A2 2 0 0 1 2 2h12a2 2 0 0 1 1.95 1.555L8 8.414zM0 4.697v7.104l5.803-3.558zM6.761 8.83l-6.57 4.027A2 2 0 0 0 2 14h12a2 2 0 0 0 1.808-1.144l-6.57-4.027L8 9.586z"/>
+        </svg>
+        Email:
+      </dt>
+      <dd class="col-sm-9">{{ cliente.email }}</dd>
+
+      <dt class="col-sm-3 d-flex align-items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-telephone-fill me-2" viewBox="0 0 16 16">
+          <path fill-rule="evenodd" d="M1.885.511a1.745 1.745 0 0 1 2.61.163L6.29 2.98c.329.423.445.974.28 1.465l-2.087.677a11.962 11.962 0 0 0 6.196 6.196l.677-2.087a1.451 1.451 0 0 1 1.465.28l2.298 1.795c.43.336.623.94.398 1.45l-2.293 2.784c-.28.34-.823.38-1.143.08a17.626 17.626 0 0 1-6.57-4.219A17.626 17.626 0 0 1 .639 4.646c-.3-.32-.26-.863.08-1.143z"/>
+        </svg>
+        Teléfono:
+      </dt>
+      <dd class="col-sm-9">{{ cliente.telefono|default:"No especificado" }}</dd>
+
+      <dt class="col-sm-3 d-flex align-items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-geo-alt-fill me-2" viewBox="0 0 16 16">
+          <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10m0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6"/>
+        </svg>
+        Dirección:
+      </dt>
+      <dd class="col-sm-9">{{ cliente.direccion|default:"No especificada" }}</dd>
+
+      <dt class="col-sm-3 d-flex align-items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar-check-fill me-2" viewBox="0 0 16 16">
+          <path d="M4 .5a.5.5 0 0 0-1 0V1H2a2 2 0 0 0-2 2v1h16V3a2 2 0 0 0-2-2h-1V.5a.5.5 0 0 0-1 0V1H4zM16 14V5H0v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2m-5.146-5.146-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L7.5 10.793l2.646-2.647a.5.5 0 0 1 .708.708"/>
+        </svg>
+        Cliente desde:
+      </dt>
+      <dd class="col-sm-9">{{ cliente.fecha_creacion|date:"d M Y" }}</dd>
+    </dl>
+  </div>
+</div>
 {% endblock %}

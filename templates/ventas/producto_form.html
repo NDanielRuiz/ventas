@@ -1,40 +1,49 @@
 {% extends 'base.html' %}
-
-{% block title %}{% if form.instance.pk %}Editar Producto{% else %}Añadir Nuevo Producto{% endif %}{% endblock %}
+{% load widget_tweaks %}  {% block title %}{% if form.instance.pk %}Editar Producto{% else %}Añadir Nuevo Producto{% endif %}{% endblock %}
 
 {% block content %}
-  <h2>{% if form.instance.pk %}Editar Producto: {{ form.instance.nombre }}{% else %}Añadir Nuevo Producto{% endif %}</h2>
-  <hr>
+  <div class="container mt-4">
+    <h2 class="mb-4">{% if form.instance.pk %}Editar Producto: {{ form.instance.nombre }}{% else %}Añadir Nuevo Producto{% endif %}</h2>
+    <hr>
 
-  <form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
+    <form method="post" enctype="multipart/form-data" class="needs-validation my-4" novalidate>
+      {% csrf_token %}
 
-    {% for field in form %}
-      <div class="row mb-3">
-        <label for="{{ field.id_for_label }}" class="col-md-3 col-form-label text-md-end">
-          {{ field.label }}
-        </label>
-        <div class="col-md-9">
-          {{ field }}
+      {% for field in form %}
+        <div class="mb-3 row">
+          <label for="{{ field.id_for_label }}" class="col-md-3 col-form-label text-md-end">
+            {{ field.label }}
+            {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+          </label>
+          <div class="col-md-9">
+            {% if field.name == 'imagen' %}
+              <div class="input-group">
+                <input type="file" class="form-control" id="{{ field.id_for_label }}" name="{{ field.html_name }}" accept="image/*">
+                <label class="input-group-text" for="{{ field.id_for_label }}">Subir</label>
+              </div>
+            {% else %}
+              {{ field|add_class:"form-control" }}
+            {% endif %}
 
-          {% if field.help_text %}
-            <small class="form-text text-muted">{{ field.help_text }}</small>
-          {% endif %}
+            {% if field.help_text %}
+              <small class="form-text text-muted">{{ field.help_text }}</small>
+            {% endif %}
+            
+            {% if field.errors %}
+              <div class="invalid-feedback d-block">
+                {{ field.errors }}
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
 
-          {% if field.errors %}
-            <div class="invalid-feedback d-block">
-              {{ field.errors }}
-            </div>
-          {% endif %}
+      <div class="row">
+        <div class="col-md-9 offset-md-3">
+          <button type="submit" class="btn btn-primary me-2">Guardar Cambios</button>
+          <a href="{% url 'lista_productos' %}" class="btn btn-secondary">Cancelar</a>
         </div>
       </div>
-    {% endfor %}
-
-    <div class="row">
-        <div class="col-md-9 offset-md-3">
-            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-            <a href="{% url 'lista_productos' %}" class="btn btn-secondary">Cancelar</a>
-        </div>
-    </div>
-  </form>
+    </form>
+  </div>
 {% endblock %}

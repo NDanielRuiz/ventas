@@ -295,14 +295,4 @@ def borrar_producto(request, producto_id):
 
     return render(request, 'ventas/borrar_producto.html', {'producto': producto})
 
-@login_required
-def test_s3(request):
-    storage = S3Boto3Storage()
-    try:
-        storage.save('test-render.txt', ContentFile(b"Prueba desde Render"))
-        return HttpResponse("✅ Archivo subido a S3")
-    except Exception as e:
-        return HttpResponse(f"❌ Error: {e}")
-
-
 

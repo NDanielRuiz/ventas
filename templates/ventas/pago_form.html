@@ -1,17 +1,67 @@
 {% extends 'base.html' %}
+{% load widget_tweaks %}
+{% load humanize %}
 
 {% block title %}Añadir Pago a Factura #{{ factura.id }}{% endblock %}
 
 {% block content %}
-  <h2>Añadir Pago a Factura #{{ factura.id }}</h2>
-  <p>Cliente: <strong>{{ factura.cliente }}</strong></p>
-  <p class="text-danger">Saldo Pendiente Actual: ${{ factura.saldo_pendiente|floatformat:2 }}</p>
-  <hr>
-  
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Registrar Pago</button>
-    <a href="{% url 'detalle_factura' factura.id %}" class="btn btn-secondary">Cancelar</a>
-  </form>
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+
+    <div class="text-center mb-4">
+      <h1 class="mb-1">Registrar un Pago</h1>
+      <p class="lead">Para la Factura #{{ factura.id }}</p>
+    </div>
+
+    <div class="card bg-light mb-4">
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <p class="card-text mb-1"><strong>Cliente:</strong> {{ factura.cliente }}</p>
+          </div>
+          <div class="col-md-6 text-md-end">
+            <p class="card-text mb-1 text-danger">
+              <strong>Saldo Pendiente:</strong> ${{ factura.saldo_pendiente|floatformat:0|intcomma }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <form method="post">
+      {% csrf_token %}
+
+      {% for field in form %}
+        <div class="row mb-3">
+          <label for="{{ field.id_for_label }}" class="col-md-3 col-form-label text-md-end">{{ field.label }}</label>
+          <div class="col-md-9">
+
+            {% if field.name == 'monto' %}
+              <div class="input-group">
+                <span class="input-group-text">$</span>
+                {{ field|add_class:"form-control"|attr:"placeholder:0" }}
+              </div>
+            {% elif field.name == 'metodo_pago' %}
+              {{ field|add_class:"form-select" }}
+            {% else %}
+              {{ field|add_class:"form-control" }}
+            {% endif %}
+
+            {% if field.errors %}
+              <div class="invalid-feedback d-block">{{ field.errors }}</div>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+      
+      <div class="row">
+        <div class="col-md-9 offset-md-3">
+          <button type="submit" class="btn btn-primary">Registrar Pago</button>
+          <a href="{% url 'detalle_factura' factura.id %}" class="btn btn-secondary">Cancelar</a>
+        </div>
+      </div>
+    </form>
+    
+  </div>
+</div>
 {% endblock %}

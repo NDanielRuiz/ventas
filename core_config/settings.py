@@ -26,10 +26,16 @@ else:
 
 # --- Aplicaciones Instaladas ---
 INSTALLED_APPS = [
-    'django.contrib.admin', 'django.contrib.auth', 'django.contrib.contenttypes',
-    'django.contrib.sessions', 'django.contrib.messages', 'django.contrib.staticfiles',
-    'storages', # App de terceros para S3
-    'ventas',   # Nuestra app
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'django.contrib.humanize',
+    'storages',
+    'widget_tweaks',  
+    'ventas',
 ]
 
 # --- Middlewares ---

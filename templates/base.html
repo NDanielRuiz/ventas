@@ -1,4 +1,6 @@
 {% load static %}
+{% load widget_tweaks %}
+{% load humanize %}
 <!doctype html>
 <html lang="es">
 <head>
@@ -80,5 +82,46 @@
 
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Código para añadir nuevas filas al formset
+    const addItemBtn = document.getElementById('add-item-btn');
+    const container = document.getElementById('detalle-forms-container');
+    const totalForms = document.getElementById('id_detalles-TOTAL_FORMS');
+    
+    // Django nos da una plantilla vacía para clonar
+    // (normalmente está oculta o no se renderiza, la crearemos si no existe)
+    let formTemplate = `
+      <div class="row detalle-form mb-2 align-items-center">
+        <div class="col-md-6">
+          {{ formset.empty_form.producto|add_class:"form-select"|attr:"aria-label:Producto" }}
+        </div>
+        <div class="col-md-3">
+          {{ formset.empty_form.cantidad|add_class:"form-control"|attr:"placeholder:Cantidad" }}
+        </div>
+        <div class="col-md-2"></div>
+      </div>
+    `;
+    
+    addItemBtn.addEventListener('click', function() {
+        // Obtenemos el número actual de formularios
+        let formNum = parseInt(totalForms.value);
+        
+        // Creamos la nueva fila reemplazando el prefijo
+        let newFormHtml = formTemplate.replace(/__prefix__/g, formNum);
+        
+        // Creamos un div temporal para insertar el HTML
+        let tempDiv = document.createElement('div');
+        tempDiv.innerHTML = newFormHtml;
+        
+        // Añadimos la nueva fila al contenedor
+        container.append(tempDiv.firstElementChild);
+        
+        // Incrementamos el contador de formularios
+        totalForms.value = formNum + 1;
+    });
+});
+</script>
 </body>
 </html>

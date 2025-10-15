@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load humanize %}
 
 {% block title %}Mis Facturas{% endblock %}
 
@@ -17,8 +18,8 @@
               <th># Factura</th>
               <th>Cliente</th>
               <th>Fecha</th>
-              <th>Total</th>
-              <th>Saldo Pendiente</th>
+              <th class="text-end">Total</th>
+              <th class="text-end">Saldo Pendiente</th>
               <th>Estado</th>
             </tr>
           </thead>
@@ -28,8 +29,10 @@
               <td><a href="{% url 'detalle_factura' factura.id %}">Factura #{{ factura.id }}</a></td>
               <td>{{ factura.cliente }}</td>
               <td>{{ factura.fecha_emision|date:"d M Y" }}</td>
-              <td>${{ factura.total|floatformat:2 }}</td>
-              <td>${{ factura.saldo_pendiente|floatformat:2 }}</td>
+              
+              <td class="text-end">${{ factura.total|floatformat:0|intcomma }}</td>
+              <td class="text-end">${{ factura.saldo_pendiente|floatformat:0|intcomma }}</td>
+              
               <td>
                 <span class="badge 
                   {% if factura.estado == 'PAGADA' %}bg-success{% elif factura.estado == 'PENDIENTE' %}bg-warning text-dark{% else %}bg-danger{% endif %}">

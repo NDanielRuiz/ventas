@@ -1,6 +1,5 @@
 {% extends 'base.html' %}
-
-{% block title %}Detalle de Factura #{{ factura.id }}{% endblock %}
+{% load humanize %} {% block title %}Detalle de Factura #{{ factura.id }}{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -8,11 +7,9 @@
 
     <div class="btn-group">
       <a href="{% url 'añadir_pago' factura.id %}" class="btn btn-primary">Añadir Pago</a>
-
       <button type="button" class="btn btn-secondary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
         <span class="visually-hidden">Toggle Dropdown</span>
       </button>
-
       <ul class="dropdown-menu dropdown-menu-end">
         <li><a class="dropdown-item" href="{% url 'editar_factura' factura.id %}">Editar Factura</a></li>
         <li><a class="dropdown-item" href="{% url 'vista_comprobante' factura.id %}" target="_blank">Imprimir Comprobante</a></li>
@@ -38,8 +35,8 @@
           </p>
         </div>
         <div class="col-md-6 text-md-end">
-          <h3>Total: ${{ factura.total|floatformat:2 }}</h3>
-          <h4 class="text-danger">Saldo Pendiente: ${{ factura.saldo_pendiente|floatformat:2 }}</h4>
+          <h3>Total: ${{ factura.total|floatformat:0|intcomma }}</h3>
+          <h4 class="text-danger">Saldo Pendiente: ${{ factura.saldo_pendiente|floatformat:0|intcomma }}</h4>
         </div>
       </div>
     </div>
@@ -53,19 +50,19 @@
         <thead>
           <tr>
             <th>Producto</th>
-            <th>Cantidad</th>
-            <th>Precio Unitario</th>
-            <th>Subtotal</th>
+            <th class="text-end">Cantidad</th>
+            <th class="text-end">Precio Unitario</th>
+            <th class="text-end">Subtotal</th>
           </tr>
         </thead>
         <tbody>
           {% for detalle in factura.detalles.all %}
             <tr>
               <td>{{ detalle.producto.nombre }}</td>
-              <td>{{ detalle.cantidad }}</td>
-              <td>${{ detalle.precio_unitario|floatformat:2 }}</td>
+              <td class="text-end">{{ detalle.cantidad }}</td>
+              <td class="text-end">${{ detalle.precio_unitario|floatformat:0|intcomma }}</td>
               {% widthratio detalle.cantidad 1 detalle.precio_unitario as subtotal %}
-              <td>${{ subtotal|floatformat:2 }}</td>
+              <td class="text-end">${{ subtotal|floatformat:0|intcomma }}</td>
             </tr>
           {% endfor %}
         </tbody>
@@ -81,7 +78,7 @@
         <thead>
           <tr>
             <th>Fecha del Pago</th>
-            <th>Monto</th>
+            <th class="text-end">Monto</th>
             <th>Método</th>
           </tr>
         </thead>
@@ -89,7 +86,7 @@
           {% for pago in factura.pagos.all %}
             <tr>
               <td>{{ pago.fecha_pago|date:"d M Y, h:i A" }}</td>
-              <td>${{ pago.monto|floatformat:2 }}</td>
+              <td class="text-end">${{ pago.monto|floatformat:0|intcomma }}</td>
               <td>{{ pago.get_metodo_pago_display }}</td>
             </tr>
           {% empty %}
@@ -101,5 +98,4 @@
       </table>
     </div>
   </div>
-
 {% endblock %}

@@ -1,39 +1,74 @@
 {% extends 'base.html' %}
+{% load widget_tweaks %}
 
-{% block title %}Crear Nueva Factura{% endblock %}
+{% block title %}
+  {% if factura %}Editar Factura #{{ factura.id }}{% else %}Crear Nueva Factura{% endif %}
+{% endblock %}
 
 {% block content %}
-  <h2>Crear Nueva Factura</h2>
+<div class="container mt-4">
+  <h2 class="mb-4">
+    {% if factura %}Editar Factura #{{ factura.id }}{% else %}Crear Nueva Factura{% endif %}
+  </h2>
   <hr>
-  <form method="post">
+
+  <form method="post" class="needs-validation" novalidate>
     {% csrf_token %}
 
-    {{ form.as_p }}
+    {% for field in form %}
+      <div class="row mb-3">
+        <label for="{{ field.id_for_label }}" class="col-md-3 col-form-label text-md-end">{{ field.label }}</label>
+        <div class="col-md-9">
+          {% if field.name == 'cliente' %}
+             {{ field|add_class:"form-select" }}
+          {% else %}
+             {{ field|add_class:"form-control" }}
+          {% endif %}
+          
+          {% if field.errors %}
+            <div class="invalid-feedback d-block">{{ field.errors }}</div>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
 
-    <hr>
+    <hr class="my-4">
     
     <h4>Detalles de la Factura</h4>
-    
+
     {{ formset.management_form }}
     
     <div id="detalle-forms-container">
       {% for item_form in formset %}
         <div class="row detalle-form mb-2 align-items-center">
-          <div class="col-md-6">{{ item_form.producto }}</div>
-          <div class="col-md-4">{{ item_form.cantidad }}</div>
+          <div class="col-md-6">
+            {{ item_form.producto|add_class:"form-select"|attr:"aria-label:Producto" }}
+          </div>
+          <div class="col-md-3">
+            {{ item_form.cantidad|add_class:"form-control"|attr:"placeholder:Cantidad" }}
+          </div>
           <div class="col-md-2">
             {% if item_form.instance.pk %}
-              {{ item_form.DELETE }}
+              <div class="form-check">
+                {{ item_form.DELETE|add_class:"form-check-input" }}
+                <label class="form-check-label" for="{{ item_form.DELETE.id_for_label }}">Eliminar</label>
+              </div>
             {% endif %}
           </div>
         </div>
       {% endfor %}
     </div>
 
-    <h2>{% if factura %}Editar Factura #{{ factura.id }}{% else %}Crear Nueva Factura{% endif %}</h2>
-
-    <button type="submit" class="btn btn-primary mt-3">
-        {% if factura %}Guardar Cambios{% else %}Guardar Factura{% endif %}
-    </button>
+    <button type="button" id="add-item-btn" class="btn btn-outline-secondary btn-sm mt-2">Añadir Producto</button>
+    
+    <div class="row mt-4">
+      <div class="col-md-9 offset-md-3">
+        <button type="submit" class="btn btn-primary">
+          {% if factura %}Guardar Cambios{% else %}Guardar Factura{% endif %}
+        </button>
+        <a href="{% url 'lista_facturas' %}" class="btn btn-secondary">Cancelar</a>
+      </div>
+    </div>
   </form>
+</div>
 {% endblock %}
