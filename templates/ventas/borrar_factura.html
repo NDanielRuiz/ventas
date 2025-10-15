@@ -15,6 +15,6 @@
   <form method="post">
     {% csrf_token %}
     <button type="submit" class="btn btn-danger">Sí, eliminar factura</button>
-    <a href="{% url 'detalle_factura' factura.id %}" class="btn btn-secondary">No, cancelar</a>
+    <a href="{% url 'ventas:detalle_factura' factura.id %}" class="btn btn-secondary">No, cancelar</a>
   </form>
 {% endblock %}

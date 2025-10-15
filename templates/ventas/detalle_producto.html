@@ -7,14 +7,14 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
   <h1 class="mb-0">{{ producto.nombre }}</h1>
   <div class="btn-group">
-    <a href="{% url 'editar_producto' producto.id %}" class="btn btn-primary">Editar</a>
+    <a href="{% url 'ventas:editar_producto' producto.id %}" class="btn btn-primary">Editar</a>
     <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
       <span class="visually-hidden">Toggle Dropdown</span>
     </button>
     <ul class="dropdown-menu dropdown-menu-end">
-      <li><a class="dropdown-item" href="{% url 'lista_productos' %}">Volver a la Lista</a></li>
+      <li><a class="dropdown-item" href="{% url 'ventas:lista_productos' %}">Volver a la Lista</a></li>
       <li><hr class="dropdown-divider"></li>
-      <li><a class="dropdown-item text-danger" href="{% url 'borrar_producto' producto.id %}">Borrar Producto</a></li>
+      <li><a class="dropdown-item text-danger" href="{% url 'ventas:borrar_producto' producto.id %}">Borrar Producto</a></li>
     </ul>
   </div>
 </div>

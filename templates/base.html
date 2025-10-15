@@ -13,7 +13,7 @@
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-  <div class="container-fluid"> <a class="navbar-brand" href="{% url 'dashboard' %}">Mi empresa</a>
+  <div class="container-fluid"> <a class="navbar-brand" href="{% url 'ventas:dashboard' %}">Mi empresa</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -21,13 +21,13 @@
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         {% if user.is_authenticated %}
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'lista_clientes' %}">Clientes</a>
+            <a class="nav-link" href="{% url 'ventas:lista_clientes' %}">Clientes</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'lista_productos' %}">Productos</a> 
+            <a class="nav-link" href="{% url 'ventas:lista_productos' %}">Productos</a> 
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'lista_facturas' %}">Facturas</a>
+            <a class="nav-link" href="{% url 'ventas:lista_facturas' %}">Facturas</a>
           </li>
         {% endif %}
       </ul>
@@ -39,7 +39,7 @@
               </a>
               <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                 <li>
-                  <form action="{% url 'logout' %}" method="post" class="d-inline">
+                  <form action="{% url 'ventas:logout' %}" method="post" class="d-inline">
                     {% csrf_token %}
                     <button type="submit" class="dropdown-item">Cerrar Sesión</button>
                   </form>
@@ -48,7 +48,7 @@
             </li>
           {% else %}
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'login' %}">Iniciar Sesión</a>
+              <a class="nav-link" href="{% url 'ventas:login' %}">Iniciar Sesión</a>
             </li>
           {% endif %}
       </ul>

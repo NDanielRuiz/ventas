@@ -87,7 +87,7 @@
                 <tbody>
                     {% for factura in ultimas_facturas %}
                     <tr>
-                        <td><a href="{% url 'detalle_factura' factura.id %}">Factura #{{ factura.id }}</a></td>
+                        <td><a href="{% url 'ventas:detalle_factura' factura.id %}">Factura #{{ factura.id }}</a></td>
                         <td>{{ factura.cliente }}</td>
                         <td>{{ factura.fecha_emision|date:"d M Y" }}</td>
                         <td class="text-end">${{ factura.total|floatformat:0|intcomma }}</td>

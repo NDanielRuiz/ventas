@@ -3,7 +3,7 @@
 {% block content %}
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="mb-0">Inventario</h1>
-    <a href="{% url 'crear_producto' %}" class="btn btn-primary">Añadir Producto</a>
+    <a href="{% url 'ventas:crear_producto' %}" class="btn btn-primary">Añadir Producto</a>
   </div>
   <div class="card">
     <div class="card-body">
@@ -19,7 +19,7 @@
           <tbody>
             {% for producto in productos %}
             <tr>
-              <td><a href="{% url 'detalle_producto' producto.id %}">{{ producto.nombre }}</a></td>
+              <td><a href="{% url 'ventas:detalle_producto' producto.id %}">{{ producto.nombre }}</a></td>
               <td>${{ producto.precio|floatformat:2 }}</td>
               <td>{{ producto.stock }}</td>
             </tr>

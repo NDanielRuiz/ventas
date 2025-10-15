@@ -6,7 +6,7 @@
 {% block content %}
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="mb-0">Mis Facturas</h1>
-    <a href="{% url 'crear_factura' %}" class="btn btn-primary">Crear Nueva Factura</a>
+    <a href="{% url 'ventas:crear_factura' %}" class="btn btn-primary">Crear Nueva Factura</a>
   </div>
 
   <div class="card">
@@ -26,7 +26,7 @@
           <tbody>
             {% for factura in facturas %}
             <tr>
-              <td><a href="{% url 'detalle_factura' factura.id %}">Factura #{{ factura.id }}</a></td>
+              <td><a href="{% url 'ventas:detalle_factura' factura.id %}">Factura #{{ factura.id }}</a></td>
               <td>{{ factura.cliente }}</td>
               <td>{{ factura.fecha_emision|date:"d M Y" }}</td>
               

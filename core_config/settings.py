@@ -99,8 +99,9 @@ else:
 
 # --- Configuraciones Varias ---
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-LOGIN_URL = 'login'
+LOGIN_URL = 'ventas:login'
 LOGIN_REDIRECT_URL = 'dashboard'
+LOGOUT_REDIRECT_URL = 'ventas:login'
 
 # Al final de settings.py
 if not DEBUG:
