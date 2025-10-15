@@ -28,6 +28,8 @@ urlpatterns = [
     path('facturas/<int:factura_id>/comprobante/', views.vista_comprobante, name='vista_comprobante'),
     path('facturas/<int:factura_id>/borrar/', views.borrar_factura, name='borrar_factura'),
 
+    path('test-s3/', views.test_s3, name='test_s3'),
+
     #path('crear-superusuario-secreto-xyz123/', views.crear_superusuario_temporal, name='crear_superusuario_temporal'),
 
     path('login/', auth_views.LoginView.as_view(
