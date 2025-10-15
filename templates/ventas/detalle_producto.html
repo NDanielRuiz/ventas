@@ -1,42 +1,64 @@
 {% extends 'base.html' %}
+{% load humanize %}
 
 {% block title %}Detalle de {{ producto.nombre }}{% endblock %}
 
 {% block content %}
-<div class="btn-group">
-  <a href="{% url 'editar_producto' producto.id %}" class="btn btn-primary">Editar</a>
-  <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
-    <span class="visually-hidden">Toggle Dropdown</span>
-  </button>
-  <ul class="dropdown-menu dropdown-menu-end">
-    <li><a class="dropdown-item" href="{% url 'lista_productos' %}">Volver a la Lista</a></li>
-    <li><hr class="dropdown-divider"></li>
-    <li><a class="dropdown-item text-danger" href="{% url 'borrar_producto' producto.id %}">Borrar Producto</a></li>
-  </ul>
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1 class="mb-0">{{ producto.nombre }}</h1>
+  <div class="btn-group">
+    <a href="{% url 'editar_producto' producto.id %}" class="btn btn-primary">Editar</a>
+    <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+      <span class="visually-hidden">Toggle Dropdown</span>
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end">
+      <li><a class="dropdown-item" href="{% url 'lista_productos' %}">Volver a la Lista</a></li>
+      <li><hr class="dropdown-divider"></li>
+      <li><a class="dropdown-item text-danger" href="{% url 'borrar_producto' producto.id %}">Borrar Producto</a></li>
+    </ul>
+  </div>
 </div>
 
-  <div class="card mb-4">
-    <div class="card-header">Información del Producto</div>
-    <div class="card-body">
-      <div class="row">
-        {% if producto.imagen %}
-          <div class="col-md-4">
-            <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" class="img-fluid producto-detalle-img">
-          </div>
-          <div class="col-md-8">
-            <p><strong>Descripción:</strong> {{ producto.descripcion }}</p>
-            <p><strong>Precio:</strong> ${{ producto.precio|floatformat:2 }}</p>
-            <p><strong>Stock:</strong> {{ producto.stock }} unidades</p>
-          </div>
-        {% else %}
-          <div class="col-12">
-            <p><strong>Descripción:</strong> {{ producto.descripcion }}</p>
-            <p><strong>Precio:</strong> ${{ producto.precio|floatformat:2 }}</p>
-            <p><strong>Stock:</strong> {{ producto.stock }} unidades</p>
-            <p class="text-muted">No hay imagen disponible para este producto.</p>
-          </div>
-        {% endif %}
+<div class="row">
+  <div class="col-md-5 col-lg-4 mb-4">
+    {% if producto.imagen %}
+      <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" class="img-fluid rounded border shadow-sm">
+    {% else %}
+      <div class="border rounded bg-light d-flex align-items-center justify-content-center h-100 p-3">
+          <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="bi bi-camera-fill text-muted" viewBox="0 0 16 16">
+              <path d="M10.5 8.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0"/>
+              <path d="M2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4z"/>
+          </svg>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="col-md-7 col-lg-8">
+    <div class="card">
+      <div class="card-header">
+        <h4>Detalles del Producto</h4>
+      </div>
+      <div class="card-body">
+        <dl class="row">
+          <dt class="col-sm-3">Descripción:</dt>
+          <dd class="col-sm-9">{{ producto.descripcion|default:"No hay descripción disponible." }}</dd>
+
+          <dt class="col-sm-3">Precio:</dt>
+          <dd class="col-sm-9 fs-5 fw-bold text-success">
+            ${{ producto.precio|floatformat:0|intcomma }}
+          </dd>
+          
+          <dt class="col-sm-3">Stock:</dt>
+          <dd class="col-sm-9">
+              {% if producto.stock > 0 %}
+                {{ producto.stock }} unidades disponibles
+              {% else %}
+                <span class="text-danger fw-bold">Agotado</span>
+              {% endif %}
+          </dd>
+        </dl>
       </div>
     </div>
   </div>
+</div>
 {% endblock %}
