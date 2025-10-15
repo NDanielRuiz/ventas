@@ -1,12 +1,11 @@
 {% extends 'base.html' %}
-
-{% block title %}Iniciar Sesión{% endblock %}
+{% load widget_tweaks %} {% block title %}Iniciar Sesión{% endblock %}
 
 {% block content %}
   <div class="row justify-content-center">
-    <div class="col-md-6 col-lg-4">
+    <div class="col-md-6 col-lg-5">
       <div class="card shadow-sm">
-        <div class="card-header bg-dark text-white">
+        <div class="card-header bg-dark text-white text-center">
           <h3 class="mb-0">Iniciar Sesión</h3>
         </div>
         <div class="card-body">
@@ -20,18 +19,35 @@
             
             <div class="mb-3">
               <label for="{{ form.username.id_for_label }}" class="form-label">{{ form.username.label }}</label>
-              {{ form.username }}
+              {{ form.username|add_class:"form-control" }}
             </div>
             
             <div class="mb-3">
               <label for="{{ form.password.id_for_label }}" class="form-label">{{ form.password.label }}</label>
-              {{ form.password }}
+              {{ form.password|add_class:"form-control" }}
             </div>
 
             <div class="d-grid">
               <button type="submit" class="btn btn-primary">Entrar</button>
             </div>
           </form>
+        </div>
+        <div class="card-footer text-center bg-light">
+            <p class="mb-2 text-muted small">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle-fill me-1" viewBox="0 0 16 16">
+                    <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2"/>
+                </svg>
+                Este es un proyecto de demostración.
+            </p>
+            <p class="mb-1">
+                <strong>Puedes ingresar con estas credenciales:</strong>
+            </p>
+            <p class="mb-2">
+                Usuario: <kbd>demo</kbd> | Contraseña: <kbd>demo123</kbd>
+            </p>
+            <p class="small text-muted mb-0">
+                Para más información, contáctame usando los datos en el pie de página.
+            </p>
         </div>
       </div>
     </div>

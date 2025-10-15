@@ -1,93 +1,97 @@
 from django import forms
-from .models import Cliente, Producto, Factura, DetalleFactura, Pago
+from django.core.exceptions import ValidationError
 from django.contrib.auth.forms import AuthenticationForm
+import os
+from .models import Cliente, Producto, Factura, DetalleFactura, Pago
+
+# ==============================================================================
+# FORMULARIOS PARA CLIENTES
+# ==============================================================================
 
 class ClienteForm(forms.ModelForm):
     class Meta:
         model = Cliente
         fields = ['nombre', 'apellido', 'email', 'telefono', 'direccion']
-        widgets = {
-            'nombre': forms.TextInput(attrs={'class': 'form-control'}),
-            'apellido': forms.TextInput(attrs={'class': 'form-control'}),
-            'email': forms.EmailInput(attrs={'class': 'form-control'}),
-            'telefono': forms.TextInput(attrs={'class': 'form-control'}),
-            'direccion': forms.TextInput(attrs={'class': 'form-control'}),
-        }
 
-# --- AÑADE ESTE NUEVO FORMULARIO ---
-class ProductoForm(forms.ModelForm):
-    class Meta:
-        model = Producto
-        fields = ['nombre', 'descripcion', 'precio', 'stock', 'imagen']
-        widgets = {
-            'nombre': forms.TextInput(attrs={'class': 'form-control'}),
-            'descripcion': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
-            'precio': forms.NumberInput(attrs={'class': 'form-control'}),
-            'stock': forms.NumberInput(attrs={'class': 'form-control'}),
-        }
 
-# ... (ClienteForm y ProductoForm no cambian) ...
-class ClienteForm(forms.ModelForm):
-    class Meta:
-        model = Cliente
-        fields = ['nombre', 'apellido', 'email', 'telefono', 'direccion']
-        # ... widgets ...
+# ==============================================================================
+# FORMULARIOS PARA PRODUCTOS
+# ==============================================================================
 
 class ProductoForm(forms.ModelForm):
     class Meta:
         model = Producto
         fields = ['nombre', 'descripcion', 'precio', 'stock', 'imagen']
-        # ... widgets ...
 
-# --- NUEVOS FORMULARIOS PARA FACTURAS ---
-# ventas/forms.py
+    def clean_imagen(self):
+        """
+        Añade validaciones de seguridad al campo de la imagen para prevenir
+        la subida de archivos maliciosos o inapropiados.
+        """
+        imagen = self.cleaned_data.get('imagen', False)
+        if imagen:
+            # 1. Límite de tamaño del archivo (ej. 5MB)
+            if imagen.size > 5 * 1024 * 1024:
+                raise ValidationError("La imagen no puede pesar más de 5MB.")
+            
+            # 2. Validar la extensión del archivo
+            ext = os.path.splitext(imagen.name)[1]
+            valid_extensions = ['.jpg', '.jpeg', '.png']
+            if not ext.lower() in valid_extensions:
+                raise ValidationError("Tipo de archivo no válido. Solo se permiten imágenes .jpg, .jpeg o .png.")
+        
+        # Si se pasa la validación, se devuelve el objeto de la imagen
+        return imagen
+
+
+# ==============================================================================
+# FORMULARIOS PARA FACTURAS Y PAGOS
+# ==============================================================================
 
 class FacturaForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
-        # 1. SACAMOS el argumento 'user' ANTES de hacer cualquier otra cosa.
+        """
+        Filtra el queryset del campo 'cliente' para mostrar solo los clientes
+        que pertenecen al usuario que está creando la factura.
+        """
         usuario = kwargs.pop('user', None)
-
-        # 2. AHORA llamamos al constructor padre con los argumentos restantes.
         super().__init__(*args, **kwargs)
-
-        # 3. Si el usuario existe, filtramos el queryset del campo 'cliente'.
         if usuario:
             self.fields['cliente'].queryset = Cliente.objects.filter(usuario=usuario)
 
     class Meta:
         model = Factura
         fields = ['cliente', 'numero_cuotas']
-        widgets = {
-            'cliente': forms.Select(attrs={'class': 'form-control'}),
-            'numero_cuotas': forms.NumberInput(attrs={'class': 'form-control'}),
-        }
 
-# Usamos una factory para crear un FormSet para los detalles de la factura
+
 DetalleFacturaFormSet = forms.inlineformset_factory(
     Factura,
     DetalleFactura,
     fields=('producto', 'cantidad'),
     extra=1, # Muestra un formulario vacío para empezar
-    widgets={
-        'producto': forms.Select(attrs={'class': 'form-select'}),
-        'cantidad': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Cant.'}),
-    }
+    can_delete=True # Permite eliminar detalles de una factura existente
 )
 
-# --- AÑADE ESTE NUEVO FORMULARIO ---
 class PagoForm(forms.ModelForm):
     class Meta:
         model = Pago
         fields = ['monto', 'metodo_pago']
-        widgets = {
-            'monto': forms.NumberInput(attrs={'class': 'form-control'}),
-            'metodo_pago': forms.Select(attrs={'class': 'form-select'}),
-        }
 
-# --- AÑADE ESTE FORMULARIO PERSONALIZADO ---
+
+# ==============================================================================
+# FORMULARIO DE AUTENTICACIÓN
+# ==============================================================================
+
 class CustomAuthenticationForm(AuthenticationForm):
+    """
+    Formulario de login personalizado para añadir clases de Bootstrap y placeholders
+    sin necesidad de usar widget_tweaks en la plantilla.
+    """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Añadimos la clase 'form-control' de Bootstrap a los campos
-        self.fields['username'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Nombre de usuario'})
-        self.fields['password'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Contraseña'})
+        self.fields['username'].widget.attrs.update(
+            {'class': 'form-control', 'placeholder': 'Nombre de usuario'}
+        )
+        self.fields['password'].widget.attrs.update(
+            {'class': 'form-control', 'placeholder': 'Contraseña'}
+        )
