@@ -1,76 +1,111 @@
 {% extends 'base.html' %}
+{% load humanize %}
 
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
-  <h1 class="mb-4">Panel de Control</h1>
+<div class="mb-4">
+    <h1 class="display-5">¡Hola de nuevo, {{ user.first_name|default:user.username }}!</h1>
+    <p class="lead text-muted">Aquí tienes un resumen rápido de tu negocio.</p>
+</div>
 
-  <div class="row">
-    <div class="col-md-4 mb-4">
-      <div class="card text-center">
-        <div class="card-body">
-          <h5 class="card-title">Clientes Totales</h5>
-          <p class="card-text fs-1 fw-bold">{{ total_clientes }}</p>
+<div class="row">
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="card border-start border-primary border-4 shadow-sm h-100 py-2">
+            <div class="card-body">
+                <div class="row g-0 align-items-center">
+                    <div class="col">
+                        <div class="text-xs fw-bold text-primary text-uppercase mb-1">Clientes Totales</div>
+                        <div class="h2 mb-0 fw-bold text-gray-800">{{ total_clientes }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-people-fill text-gray-300" viewBox="0 0 16 16">
+                            <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6m-5.784 6A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1zM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-    <div class="col-md-4 mb-4">
-      <div class="card text-center">
-        <div class="card-body">
-          <h5 class="card-title">Facturas Pendientes</h5>
-          <p class="card-text fs-1 fw-bold">{{ facturas_pendientes }}</p>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-4 mb-4">
-      <div class="card text-white bg-danger text-center">
-        <div class="card-body">
-          <h5 class="card-title">Total por Cobrar</h5>
-          <p class="card-text fs-1 fw-bold">${{ total_por_cobrar|floatformat:2 }}</p>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <div class="card">
-    <div class="card-header">
-      Últimas Facturas
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="card border-start border-warning border-4 shadow-sm h-100 py-2">
+            <div class="card-body">
+                <div class="row g-0 align-items-center">
+                    <div class="col">
+                        <div class="text-xs fw-bold text-warning text-uppercase mb-1">Facturas Pendientes</div>
+                        <div class="h2 mb-0 fw-bold text-gray-800">{{ facturas_pendientes }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-file-earmark-text-fill text-gray-300" viewBox="0 0 16 16">
+                           <path d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0M9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1M4.5 9a.5.5 0 0 1 0-1h7a.5.5 0 0 1 0 1zM4 10.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m.5 2.5a.5.5 0 0 1 0-1h4a.5.5 0 0 1 0 1z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="card border-start border-danger border-4 shadow-sm h-100 py-2">
+            <div class="card-body">
+                <div class="row g-0 align-items-center">
+                    <div class="col">
+                        <div class="text-xs fw-bold text-danger text-uppercase mb-1">Total por Cobrar</div>
+                        <div class="h2 mb-0 fw-bold text-gray-800">${{ total_por_cobrar|floatformat:0|intcomma }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-cash-coin text-gray-300" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M11 15a4 4 0 1 0 0-8 4 4 0 0 0 0 8m5-4a5 5 0 1 1-10 0 5 5 0 0 1 10 0"/>
+                            <path d="M9.438 11.944c.047.596.518 1.06 1.363 1.116v.44h.375v-.443c.875-.061 1.386-.529 1.386-1.207 0-.618-.39-.935-1.37-1.169-.8-.19-1.36-.37-1.36-.822 0-.344.28-.67.776-.67.502 0 .785.246.828.635h.733c-.05-.897-.522-1.4-1.58-1.4-.82 0-1.344.42-1.344 1.116 0 .638.44 1.01 1.36 1.224.93.22 1.38.42 1.38.92 0 .413-.35.754-.85.754-.51 0-.853-.255-.898-.69h-.732z"/>
+                            <path d="M8 1a2 2 0 0 0-2 2v4H4.5a.5.5 0 0 0 0 1H6v1H4.5a.5.5 0 0 0 0 1H6v1H4a2 2 0 0 0-2 2v1h12v-1a2 2 0 0 0-2-2h-1.5a.5.5 0 0 0 0-1H12V8h1.5a.5.5 0 0 0 0-1H12V3a2 2 0 0 0-2-2zM7 3v3h2V3zM5 8v2h6V8z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header py-3">
+        <h6 class="m-0 fw-bold text-primary">Últimas Facturas Registradas</h6>
     </div>
     <div class="card-body">
-      <div class="table-responsive">
-        <table class="table table-hover">
-          <thead>
-            <tr>
-              <th># Factura</th>
-              <th>Cliente</th>
-              <th>Fecha</th>
-              <th>Total</th>
-              <th>Saldo Pendiente</th>
-              <th>Estado</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for factura in ultimas_facturas %}
-            <tr>
-              <td><a href="{% url 'detalle_factura' factura.id %}">Factura #{{ factura.id }}</a></td>
-              <td>{{ factura.cliente }}</td>
-              <td>{{ factura.fecha_emision|date:"d M Y" }}</td>
-              <td>${{ factura.total|floatformat:2 }}</td>
-              <td>${{ factura.saldo_pendiente|floatformat:2 }}</td>
-              <td>
-                <span class="badge {% if factura.estado == 'PAGADA' %}bg-success{% elif factura.estado == 'PENDIENTE' %}bg-warning text-dark{% else %}bg-danger{% endif %}">
-                  {{ factura.get_estado_display }}
-                </span>
-              </td>
-            </tr>
-            {% empty %}
-            <tr>
-              <td colspan="6" class="text-center">Aún no has creado ninguna factura.</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th># Factura</th>
+                        <th>Cliente</th>
+                        <th>Fecha</th>
+                        <th class="text-end">Total</th>
+                        <th class="text-end">Saldo Pendiente</th>
+                        <th class="text-center">Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for factura in ultimas_facturas %}
+                    <tr>
+                        <td><a href="{% url 'detalle_factura' factura.id %}">Factura #{{ factura.id }}</a></td>
+                        <td>{{ factura.cliente }}</td>
+                        <td>{{ factura.fecha_emision|date:"d M Y" }}</td>
+                        <td class="text-end">${{ factura.total|floatformat:0|intcomma }}</td>
+                        <td class="text-end">${{ factura.saldo_pendiente|floatformat:0|intcomma }}</td>
+                        <td class="text-center">
+                            <span class="badge {% if factura.estado == 'PAGADA' %}bg-success{% elif factura.estado == 'PENDIENTE' %}bg-warning text-dark{% else %}bg-danger{% endif %}">
+                                {{ factura.get_estado_display }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center">Aún no has creado ninguna factura.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
-  </div>
+</div>
 {% endblock %}
